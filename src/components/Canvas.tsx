@@ -95,8 +95,25 @@ export const Canvas: React.FC<Props> = (props: Props) => {
       console.log(y / grid, x / grid);
       if (x / grid < 28 && x / grid >= 0 && y / grid < 28 && y / grid >= 0) {
         if (canvasArray[y / grid][x / grid] !== 1) {
+          canvasArray[y / grid - 1][x / grid + 1] = 0.5;
+          // drawing a line
+          p5.stroke(0, 0, 0, 255);
+          p5.strokeWeight(35);
+          p5.line(p5.mouseX, p5.mouseY, p5.pmouseX, p5.pmouseY);
+          // draw a line
+
+          //update the array
           canvasArray[y / grid][x / grid] = 1;
-          setIsArrayChanged(!isArrayChanged);
+          canvasArray[y / grid - 1][x / grid - 1] = 0.5;
+          canvasArray[y / grid + 1][x / grid + 1] = 0.5;
+          canvasArray[y / grid + 1][x / grid - 1] = 0.5;
+          //update array
+
+          // p5.fill(colorPicker.color());
+          // p5.square(x, y, grid);
+          // p5.fill([150, 150, 150]);
+          // p5.square(x - grid, y - grid, grid);
+          setIsArrayChanged(false);
         }
       }
       // if (!show) {
@@ -104,9 +121,10 @@ export const Canvas: React.FC<Props> = (props: Props) => {
       // } else {
       //   p5.stroke(150);
       // }
-      p5.fill(colorPicker.color());
+
       // p5.erase();
-      p5.square(x, y, grid);
+    } else {
+      setIsArrayChanged(true);
     }
     createGrid(p5);
   };
@@ -128,7 +146,8 @@ export const DeepLearningCanvas: React.FC<Props> = (props: Props) => {
           // if (props.mnistData[1].data[2][28 * i + j] > 0) {
           // i 는 열
           // j 는 행
-          p5.fill(p5.color(255 - props.mnistData[3000].data[i * 28 + j] * 255));
+          // p5.fill(p5.color(255 - props.mnistData[3000].data[i * 28 + j] * 255));
+          p5.fill(p5.color(255 - canvasArray[i][j] * 255));
           p5.square(j * grid, i * grid, grid);
           // }
         }
