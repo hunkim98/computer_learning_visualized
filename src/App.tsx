@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { Canvas, DeepLearningCanvas } from "./components/Canvas";
+import { Canvas, DeepLearningCanvas, Example } from "./components/Canvas";
 const digitArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 function App() {
   const [mnistGroup, setMnistGroup] = useState<{ id: number; data: any[] }[][]>(
@@ -45,6 +45,7 @@ function App() {
         <Canvas mnistData={mnistData} />
         <DeepLearningCanvas mnistData={mnistData} />
       </div>
+      <Example mnistData={mnistData} />
     </div>
   );
 }

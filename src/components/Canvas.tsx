@@ -4,7 +4,7 @@ import MinHeap from "../algorithms/MinHeap";
 import { MnistClassifier } from "../dto/mnist.dto";
 import { useEffect, useState } from "react";
 
-var grid = 20;
+var grid = 10;
 // MNIST database is 28*28
 const canvasWidth = grid * 28;
 const canvasHeight = grid * 28;
@@ -56,20 +56,27 @@ function euc_dist(x1: number[], x2: number[]) {
 
 function compareKNN(heap: MinHeap, test: number[], train: MnistClassifier[]) {
   for (let i = 0; i < train.length; i++) {
-    heap.insert({ id: train[i].id, value: euc_dist(test, train[i].data) });
+    heap.insert({
+      id: train[i].id,
+      value: euc_dist(test, train[i].data),
+      index: i,
+    });
   }
 }
+
+let arrayChangeUpdated = false;
+let [currentPixelX, currentPixelY] = [0, 0];
 
 export const Canvas: React.FC<Props> = (props: Props) => {
   const [isArrayChanged, setIsArrayChanged] = useState(false);
   useEffect(() => {
-    console.log("hi");
     minHeap = new MinHeap();
     let concattedArray: number[] = Array.prototype.concat.apply(
       [],
       canvasArray
     );
     compareKNN(minHeap, concattedArray, props.mnistData);
+    console.log(minHeap.peek());
   }, [isArrayChanged]);
   const setup = (p5: p5Types, canvasParentRef: Element) => {
     p5.createCanvas(canvasWidth, canvasHeight).parent(canvasParentRef);
@@ -91,45 +98,66 @@ export const Canvas: React.FC<Props> = (props: Props) => {
     if (p5.mouseIsPressed) {
       let x = snap(p5.mouseX);
       let y = snap(p5.mouseY);
-      console.log(minHeap.peek());
-      console.log(y / grid, x / grid);
       if (x / grid < 28 && x / grid >= 0 && y / grid < 28 && y / grid >= 0) {
-        if (canvasArray[y / grid][x / grid] !== 1) {
-          canvasArray[y / grid - 1][x / grid + 1] = 0.5;
-          // drawing a line
-          p5.stroke(0, 0, 0, 255);
-          p5.strokeWeight(35);
-          p5.line(p5.mouseX, p5.mouseY, p5.pmouseX, p5.pmouseY);
-          // draw a line
+        // drawing a line
+        p5.stroke(0, 0, 0, 255);
+        p5.strokeWeight(15);
+        p5.line(p5.mouseX, p5.mouseY, p5.pmouseX, p5.pmouseY);
+        // draw a line
 
-          //update the array
-          canvasArray[y / grid][x / grid] = 1;
-          canvasArray[y / grid - 1][x / grid - 1] = 0.5;
-          canvasArray[y / grid + 1][x / grid + 1] = 0.5;
-          canvasArray[y / grid + 1][x / grid - 1] = 0.5;
-          //update array
+        // update the array
+        // if (currentPixelX !== x && currentPixelY !== y) {
+        //   canvasArray[y / grid][x / grid] =
+        //     canvasArray[y / grid][x / grid] + 1 <= 1
+        //       ? canvasArray[y / grid][x / grid] + 1
+        //       : canvasArray[y / grid][x / grid];
+        //   canvasArray[y / grid][x / grid - 1] =
+        //     canvasArray[y / grid][x / grid - 1] + 0.2 <= 1
+        //       ? canvasArray[y / grid][x / grid - 1] + 0.2
+        //       : canvasArray[y / grid][x / grid - 1];
+        //   canvasArray[y / grid][x / grid + 1] =
+        //     canvasArray[y / grid][x / grid + 1] + 0.2 <= 1
+        //       ? canvasArray[y / grid][x / grid + 1]
+        //       : canvasArray[y / grid][x / grid + 1] + 0.2;
+        //   canvasArray[y / grid + 1][x / grid] =
+        //     canvasArray[y / grid + 1][x / grid] + 0.2 <= 1
+        //       ? canvasArray[y / grid + 1][x / grid] + 0.2
+        //       : canvasArray[y / grid + 1][x / grid];
+        //   canvasArray[y / grid - 1][x / grid] =
+        //     canvasArray[y / grid - 1][x / grid] + 0.2 <= 1
+        //       ? canvasArray[y / grid - 1][x / grid] + 0.2
+        //       : canvasArray[y / grid - 1][x / grid];
+        // }
 
-          // p5.fill(colorPicker.color());
-          // p5.square(x, y, grid);
-          // p5.fill([150, 150, 150]);
-          // p5.square(x - grid, y - grid, grid);
-          setIsArrayChanged(false);
-        }
+        //update array
+
+        // p5.fill(colorPicker.color());
+        // p5.square(x, y, grid);
+        // p5.fill([150, 150, 150]);
+        // p5.square(x - grid, y - grid, grid);
+        arrayChangeUpdated = true;
+        setIsArrayChanged(false);
       }
-      // if (!show) {
-      //   p5.noStroke();
-      // } else {
-      //   p5.stroke(150);
-      // }
-
-      // p5.erase();
     } else {
+      if (arrayChangeUpdated) {
+        for (let i = 0; i < p5.width; i++) {
+          for (let j = 0; j < p5.height; j++) {
+            let x = snap(j);
+            let y = snap(i);
+            const brightness = (255 - p5.get(j, i)[0]) / 255;
+            canvasArray[y / grid][x / grid] += brightness / grid;
+          }
+        }
+        arrayChangeUpdated = false;
+      }
       setIsArrayChanged(true);
     }
-    createGrid(p5);
+    // createGrid(p5);
   };
 
-  return <Sketch setup={setup} draw={draw} />;
+  return (
+    <Sketch style={{ border: "1px solid black" }} setup={setup} draw={draw} />
+  );
 };
 
 export const DeepLearningCanvas: React.FC<Props> = (props: Props) => {
@@ -143,13 +171,8 @@ export const DeepLearningCanvas: React.FC<Props> = (props: Props) => {
       p5.background(255);
       for (let i = 0; i < 28; i++) {
         for (let j = 0; j < 28; j++) {
-          // if (props.mnistData[1].data[2][28 * i + j] > 0) {
-          // i 는 열
-          // j 는 행
-          // p5.fill(p5.color(255 - props.mnistData[3000].data[i * 28 + j] * 255));
           p5.fill(p5.color(255 - canvasArray[i][j] * 255));
           p5.square(j * grid, i * grid, grid);
-          // }
         }
       }
       // for (let i = 0; i < 28; i++) {
@@ -160,6 +183,43 @@ export const DeepLearningCanvas: React.FC<Props> = (props: Props) => {
       //     }
       //   }
       // }
+    }
+
+    createGrid(p5);
+  };
+
+  return <Sketch setup={setup} draw={draw} />;
+};
+
+export const Example: React.FC<Props> = (props: Props) => {
+  const setup = (p5: p5Types, canvasParentRef: Element) => {
+    p5.createCanvas(canvasWidth, canvasHeight).parent(canvasParentRef);
+    p5.background(255);
+  };
+
+  const draw = (p5: p5Types) => {
+    if (props.mnistData.length > 0) {
+      p5.background(255);
+      for (let i = 0; i < 28; i++) {
+        for (let j = 0; j < 28; j++) {
+          if (props.mnistData[3000].data[28 * i + j] > 0) {
+            p5.fill(
+              p5.color(255 - props.mnistData[3000].data[i * 28 + j] * 255)
+            );
+            p5.square(j * grid, i * grid, grid);
+          }
+        }
+      }
+    }
+    if (minHeap.peek()) {
+      const index = minHeap.peek().index;
+      const data = props.mnistData[index].data;
+      for (let i = 0; i < 28; i++) {
+        for (let j = 0; j < 28; j++) {
+          p5.fill(p5.color(255 - data[28 * i + j] * 255));
+          p5.square(j * grid, i * grid, grid);
+        }
+      }
     }
     createGrid(p5);
   };

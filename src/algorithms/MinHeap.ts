@@ -1,6 +1,7 @@
 interface Node {
   id: number;
   value: number;
+  index: number;
 }
 
 class MinHeap {
@@ -15,8 +16,8 @@ class MinHeap {
 
   // Add the new value to the end of the array/tree. Heapify up. If our new heap is over capacity,
   // Remove the min value.
-  insert({ id, value }: Node) {
-    this.array.push({ id, value });
+  insert({ id, value, index }: Node) {
+    this.array.push({ id, value, index });
     this.minHeapifyUp();
   }
 
