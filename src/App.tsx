@@ -41,6 +41,10 @@ function App() {
       <div style={{ fontSize: 25, paddingTop: 20, paddingBottom: 20 }}>
         Pixel Vision
       </div>
+      <nav>
+        <button>knn</button>
+        <button>DLGradient</button>
+      </nav>
       <div style={{ display: "flex", justifyContent: "space-around" }}>
         <Canvas mnistData={mnistData} />
         <DeepLearningCanvas mnistData={mnistData} />
