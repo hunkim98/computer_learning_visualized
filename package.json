@@ -12,6 +12,7 @@
     "@types/react-dom": "^18.0.0",
     "amd-loader": "^0.0.8",
     "axios": "^0.27.2",
+    "ml-matrix": "^6.10.0",
     "mnist": "^1.1.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",

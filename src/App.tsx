@@ -3,10 +3,12 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Canvas, DeepLearningCanvas, Example } from "./components/Canvas";
 import { DLGradient } from "./components/DLGradient";
+import Propogation from "./components/Propogation";
 //Typescript version enum
 const DLType = {
   KNN: "KNN",
   DLGradient: "DLGradient",
+  DLPropogation: "DLPropogation",
 } as const;
 type DLType = typeof DLType[keyof typeof DLType];
 
@@ -30,10 +32,8 @@ function App() {
         .then((json) => {
           const chunkSize = 28 * 28;
           const data = [];
-          for (let i = 0; i < json.data.length; i += chunkSize) {
-            const chunk = json.data.slice(i, i + chunkSize);
-            data.push({ id: id, data: chunk });
-            // do whatever
+          for (let i = 0; i < json.data.length; i++) {
+            data.push({ id: id, data: json.data[i] });
           }
           return data;
         })
@@ -41,8 +41,7 @@ function App() {
     Promise.all(promises).then((data) => {
       var concattedArray = Array.prototype.concat.apply([], data);
       setMninstData(concattedArray);
-      console.log("data", data);
-      setMnistGroup(data);
+      // setMnistGroup(data);
     });
   }, []);
 
@@ -61,10 +60,10 @@ function App() {
         </button>
         <button
           onClick={() => {
-            setDLView(DLType.DLGradient);
+            setDLView(DLType.DLPropogation);
           }}
         >
-          DLGradient
+          DLPropagation
         </button>
       </nav>
       {(() => {
@@ -81,8 +80,8 @@ function App() {
                 <Example mnistData={mnistData} />
               </>
             );
-          case DLType.DLGradient:
-            return <DLGradient mnistData={mnistData} />;
+          case DLType.DLPropogation:
+            return <Propogation mnistData={mnistData} />;
           default:
             return <h1>hi</h1>;
         }
