@@ -61,6 +61,9 @@ export class TwoLayerNetPropagation {
     for (let i = 0; i < y.length; i++) {
       const yMax = Math.max(...y[i]);
       const yMaxIndex = y[i].indexOf(yMax);
+      if (yMaxIndex == -1) {
+        console.log("erro");
+      }
       if (t[i][yMaxIndex]) {
         accuracy += 1 / x.length;
       }

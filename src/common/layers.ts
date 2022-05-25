@@ -9,7 +9,7 @@ import {
   subtractMatrices,
   transposeMatrix,
 } from "./functions";
-
+import { addMatrixToReference, multiplyToMatrixReference } from "./matrix";
 export class Relu {
   mask: boolean[][];
   constructor() {
@@ -35,12 +35,16 @@ export class Relu {
   }
 
   backward(dout: number[][]) {
-    const dx = dout.map((row, rowIndex) => {
-      return row.map((element, columnIndex) => {
-        return this.mask[rowIndex][columnIndex] ? element : 0;
+    dout.map((row, rowIndex) => {
+      row.map((element, columnIndex) => {
+        if (this.mask[rowIndex][columnIndex]) {
+          dout[rowIndex][columnIndex] = element;
+        } else {
+          dout[rowIndex][columnIndex] = 0;
+        }
       });
     });
-    return dx;
+    return dout;
   }
 }
 
@@ -78,20 +82,20 @@ export class Affine {
 }
 
 export class SoftMaxWithLoss {
-  t?: number[][];
+  t?: number[][]; // t is one hot vector
   y?: number[][];
   loss?: number;
   constructor() {}
   forward(x: number[][], t: number[][]) {
     this.t = t;
     this.y = softmaxMatrix(x);
-    this.loss = crossEntropyErrorMatrix(this.y, this.t);
+    this.loss = meanSquaredErrorMatrix(this.y, this.t);
     return this.loss;
   }
   backward(dout = 1) {
     const batchSize = (this.t as number[][]).length;
-    let dx = addMatrices(this.y as number[][], this.t as number[][], -1);
-    dx = scalarMatrix(dx, 1 / batchSize);
+    const dx = addMatrices(this.y as number[][], this.t as number[][], -1);
+    multiplyToMatrixReference(dx, 1 / batchSize);
     return dx;
   }
 }

@@ -30,7 +30,6 @@ function App() {
           return res.json();
         })
         .then((json) => {
-          const chunkSize = 28 * 28;
           const data = [];
           for (let i = 0; i < json.data.length; i++) {
             data.push({ id: id, data: json.data[i] });

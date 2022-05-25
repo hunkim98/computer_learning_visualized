@@ -3,6 +3,17 @@ import p5Types from "p5";
 import MinHeap from "../algorithms/MinHeap";
 import { MnistClassifier } from "../dto/mnist.dto";
 import { useEffect, useState } from "react";
+import {
+  addMatrixToReference,
+  addVectorToReference,
+  multiplyToMatrixReference,
+  transposeMatrixReference,
+} from "../common/matrix";
+import {
+  addMatrices,
+  shuffleArray,
+  transposeMatrix,
+} from "../common/functions";
 
 var grid = 10;
 // MNIST database is 28*28
@@ -164,6 +175,27 @@ export const DeepLearningCanvas: React.FC<Props> = (props: Props) => {
   const setup = (p5: p5Types, canvasParentRef: Element) => {
     p5.createCanvas(canvasWidth, canvasHeight).parent(canvasParentRef);
     p5.background(255);
+    const matrix = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ];
+    console.log(transposeMatrix(matrix));
+    console.log(JSON.parse(JSON.stringify(matrix)));
+    const vector = [1, 1, 1];
+    addVectorToReference(vector, [2, 2, 2]);
+    console.log(vector);
+
+    addMatrixToReference(matrix, matrix);
+    console.log(JSON.parse(JSON.stringify(matrix)));
+    multiplyToMatrixReference(matrix, 1 / 2);
+    console.log(JSON.parse(JSON.stringify(matrix)));
+    console.log(addMatrices(matrix, matrix, -1));
+    const newMatrix = [...Array.prototype.concat.apply([], matrix)];
+    shuffleArray(newMatrix);
+    shuffleArray(newMatrix);
+    console.log(newMatrix);
+    // transposeMatrixReference(matrix);
   };
 
   const draw = (p5: p5Types) => {

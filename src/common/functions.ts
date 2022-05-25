@@ -1,3 +1,9 @@
+import {
+  addScalarToMatrixReference,
+  multiplyToMatrixReference,
+  transposeMatrixReference,
+} from "./matrix";
+
 export const gradientDescent = () => {};
 
 function euc_dist(x1: number[], x2: number[]) {
@@ -135,18 +141,25 @@ export const sigmoid = (x: number) => {
 };
 
 export const softmaxMatrix = (x: number[][]) => {
-  const max = Math.max(...Array.prototype.concat.apply([], x));
-  let sum = 0;
+  const sumGroups: number[] = [];
   const newMatrix = x.map((row) => {
-    return row.map((element) => {
+    let sum = 0;
+    const max = Math.max(...row);
+    return row.map((element, index) => {
       const addition = Math.exp(element - max);
       sum += addition;
+      if (index === row.length - 1) {
+        sumGroups.push(sum);
+      }
       return addition;
     });
   });
-  return newMatrix.map((row) => {
-    return row.map((element) => element / sum);
-  });
+  for (let i = 0; i < newMatrix.length; i++) {
+    for (let j = 0; j < newMatrix[0].length; j++) {
+      newMatrix[i][j] /= sumGroups[i];
+    }
+  }
+  return newMatrix;
 };
 
 export function shuffleArray(array: any[]) {
@@ -160,12 +173,15 @@ export function shuffleArray(array: any[]) {
 
 export const crossEntropyErrorMatrix = (y: number[][], t: number[][]) => {
   const batchSize = y.length;
-  let sum = 0;
+  let sumArray: number[] = [];
   t.map((row, rowIndex) => {
+    let tempSum = 0;
     row.map((element, columnIndex) => {
-      sum += element * Math.log(y[rowIndex][columnIndex]);
+      tempSum += element * Math.log(y[rowIndex][columnIndex]);
     });
+    sumArray.push(tempSum);
   });
+  const sum = sumArray.reduce((partialSum, a) => partialSum + a, 0);
   return -sum / batchSize;
 };
 
