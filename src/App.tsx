@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import { shuffleArray } from "./common/functions";
 import { Canvas, DeepLearningCanvas, Example } from "./components/Canvas";
 import { DLGradient } from "./components/DLGradient";
 import Propogation from "./components/Propogation";
@@ -39,6 +40,7 @@ function App() {
     );
     Promise.all(promises).then((data) => {
       var concattedArray = Array.prototype.concat.apply([], data);
+      shuffleArray(concattedArray);
       setMninstData(concattedArray);
       // setMnistGroup(data);
     });
